@@ -9,7 +9,12 @@ from scipy.fft import fft2, ifft2, fftshift, ifftshift
 def padding(img, pad, mode="reflect", cval=0.0):
     img = np.asarray(img, dtype=np.float64)
     widths = ((pad, pad), (pad, pad))
-    return np.pad(img, widths, mode=mode, constant_values=cval) 
+
+    if mode == "constant":
+        return np.pad(img, widths, mode=mode,
+                      constant_values=cval)
+    else:
+        return np.pad(img, widths, mode=mode)
 
 # FFT 2D:
 def transformada(img):
@@ -102,9 +107,44 @@ img_filtrada, img_recuperada, espc_filtrado, filtro, espectro, img_ext = filtrar
     ancho,
     tipo='ideal',
     pad=pad,
-    modo='constant'
+    modo='reflect'
 )
 
+# Mostrar resultados
+
+fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+
+axes[0].imshow(img, cmap='gray')
+axes[0].set_title('Imagen original')
+
+axes[1].imshow(img_ext, cmap='gray')
+axes[1].set_title('Imagen expandida')
+
+axes[2].imshow(decibeles(espectro), cmap='gray')
+axes[2].set_title('Espectro original')
+
+for ax in axes:
+    ax.axis('off')
+
+plt.tight_layout()
+plt.show()
+
+fig2, axes2 = plt.subplots(1, 3, figsize=(15, 5))
+
+axes2[0].imshow(decibeles(espectro), cmap='gray')
+axes2[0].set_title('Espectro original')
+
+axes2[1].imshow(decibeles(filtro), cmap='gray')
+axes2[1].set_title('Filtro notch')
+
+axes2[2].imshow(decibeles(espc_filtrado), cmap='gray')
+axes2[2].set_title('Espectro filtrado')
+
+for ax in axes2:
+    ax.axis('off')
+
+plt.tight_layout()
+plt.show()
 
 fig3, axes3 = plt.subplots(1, 3, figsize=(15, 5))
 

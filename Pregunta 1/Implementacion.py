@@ -7,7 +7,6 @@ img = data.camera()
 plt.imshow(img, cmap='gray')
 plt.axis('off')
 plt.show()
-#Implemente una cadena completa de procesamiento: 
 
 # extensión (padding) configurable de la imagen:
 def padding(img, pad, mode="reflect", cval=0.0):
@@ -25,10 +24,10 @@ def inversa(img):
 
 # construcción del filtro notch:
 
-# se nos pide:
-# ideal y Gaussiano. 
-# permitir definir uno o más pares simétricos de notches
-# parametrizar centros y su ancho.
+    # se nos pide:
+    # ideal y Gaussiano. 
+    # permitir definir uno o más pares simétricos de notches
+    # parametrizar centros y su ancho.
 
 def filtro_notch(forma, notches, ancho, tipo='ideal'): #(notches son tuplas que representan los centros)
     
@@ -75,6 +74,16 @@ def reconstruir(espc_filtrado):
 # y recorte al tamaño original:
 def recortar(img, pad):
     N, M = img.shape
-    img_filtrada = img_filtrada[pad:pad+N, pad:pad+M]
-    return img_filtrada
+    img_recortada = img[pad:pad+N, pad:pad+M]
+    return img_recortada
 
+#Función que encapsula todo el proceso:
+def filtrar_notch(img, notches, ancho, tipo='ideal', pad=0, modo='constant'):
+    # Extensión de la imagen
+    img_ext = padding(img, pad, mode=modo)
+    espectro = transformada(img_ext)
+    filtro = filtro_notch(espectro.shape, notches, ancho, tipo)
+    img_filtrada = aplicar_filtro(espectro, filtro)
+    img_recuperada = reconstruir(img_filtrada)
+    img_final = recortar(img_recuperada, pad)
+    return img_final

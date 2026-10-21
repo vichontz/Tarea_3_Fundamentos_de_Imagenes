@@ -12,9 +12,14 @@ plt.show()
 def padding(img, pad, mode="reflect", cval=0.0):
     img = np.asarray(img, dtype=np.float64)
     widths = ((pad, pad), (pad, pad))
-    return np.pad(img, widths, mode=mode)  
+    return np.pad(img, widths, mode=mode, cval=cval)  
 
 # FFT 2D:
+def transformada(img):
+    return np.fft.fftshift(np.fft.fft2(img))
+
+def inversa(img):
+    return np.fft.ifft2(np.fft.ifftshift(img))
 
 # construcción del filtro notch:
 

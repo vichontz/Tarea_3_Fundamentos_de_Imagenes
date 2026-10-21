@@ -3,16 +3,13 @@ import matplotlib.pyplot as plt
 from skimage import data
 from scipy.fft import fft2, ifft2, fftshift, ifftshift
 
-img = data.camera()
-plt.imshow(img, cmap='gray')
-plt.axis('off')
-plt.show()
+
 
 # extensión (padding) configurable de la imagen:
 def padding(img, pad, mode="reflect", cval=0.0):
     img = np.asarray(img, dtype=np.float64)
     widths = ((pad, pad), (pad, pad))
-    return np.pad(img, widths, mode=mode, cval=cval)  
+    return np.pad(img, widths, mode=mode, constant_values=cval) 
 
 # FFT 2D:
 def transformada(img):
@@ -83,7 +80,81 @@ def filtrar_notch(img, notches, ancho, tipo='ideal', pad=0, modo='constant'):
     img_ext = padding(img, pad, mode=modo)
     espectro = transformada(img_ext)
     filtro = filtro_notch(espectro.shape, notches, ancho, tipo)
-    img_filtrada = aplicar_filtro(espectro, filtro)
-    img_recuperada = reconstruir(img_filtrada)
+    espc_filtrado = aplicar_filtro(espectro, filtro)
+    img_recuperada = reconstruir(espc_filtrado)
     img_final = recortar(img_recuperada, pad)
-    return img_final
+    return img_final, img_recuperada, espc_filtrado, filtro, espectro, img_ext
+
+def decibeles(img):
+    return np.log1p(np.abs(img))
+#Test
+img = data.camera()
+notches = [(100, 0),(200, 0), (300, 0), (400, 0), (500,0)]
+
+# Parametros
+ancho = 50
+N, M = img.shape
+pad = 2 * N
+
+# Filtrado
+img_filtrada, img_recuperada, espc_filtrado, filtro, espectro, img_ext = filtrar_notch(
+    img,
+    notches,
+    ancho,
+    tipo='ideal',
+    pad=pad,
+    modo='constant'
+)
+
+# Mostrar resultados
+
+fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+
+axes[0].imshow(img, cmap='gray')
+axes[0].set_title('Imagen original')
+
+axes[1].imshow(img_ext, cmap='gray')
+axes[1].set_title('Imagen expandida')
+
+axes[2].imshow(decibeles(espectro), cmap='gray')
+axes[2].set_title('Espectro original')
+
+for ax in axes:
+    ax.axis('off')
+
+plt.tight_layout()
+plt.show()
+
+fig2, axes2 = plt.subplots(1, 3, figsize=(15, 5))
+
+axes2[0].imshow(decibeles(espectro), cmap='gray')
+axes2[0].set_title('Espectro original')
+
+axes2[1].imshow(decibeles(filtro), cmap='gray')
+axes2[1].set_title('Filtro notch')
+
+axes2[2].imshow(decibeles(espc_filtrado), cmap='gray')
+axes2[2].set_title('Espectro filtrado')
+
+for ax in axes2:
+    ax.axis('off')
+
+plt.tight_layout()
+plt.show()
+
+fig3, axes3 = plt.subplots(1, 3, figsize=(15, 5))
+
+axes3[0].imshow(img, cmap='gray')
+axes3[0].set_title('Imagen original')
+
+axes3[1].imshow(img_recuperada, cmap='gray')
+axes3[1].set_title('Imagen recuperada')
+
+axes3[2].imshow(img_filtrada, cmap='gray')
+axes3[2].set_title('Imagen filtrada')
+
+for ax in axes3:
+    ax.axis('off')
+
+plt.tight_layout()
+plt.show()

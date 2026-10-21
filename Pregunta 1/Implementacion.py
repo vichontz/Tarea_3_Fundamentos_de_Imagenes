@@ -43,18 +43,35 @@ def filtro_notch(forma, notches, ancho, tipo='ideal'): #(notches son tuplas que 
     H = np.ones((P, Q))
 
     for u0, v0 in notches:
-        if tipo == 'ideal':
-
-        elif tipo == 'gaussiano':
-
-        else:
-            raise ValueError("Tipo debe ser 'ideal' o 'gaussiano'")
+            # Distancia a los dos centros simetricos
+            D1 = np.sqrt((x - (cx + u0))**2 + (y - (cy + v0))**2)
+            D2 = np.sqrt((x - (cx - u0))**2 + (y - (cy - v0))**2)
+    
+            # Ambos tipos son los pasa altos vistos en clase, centrados en las frecuencias de los notches.
+            if tipo == 'ideal':
+                # tiramos cero donde la distancia es menor o igual al ancho
+                H[(D1 <= ancho) | (D2 <= ancho)] = 0
+    
+            elif tipo == 'gaussiano':
+                # Notch Gaussiano, donde la desviacion estandar es el ancho.
+                H1 = 1 - np.exp(-D1**2 / (2 * ancho**2))
+                H2 = 1 - np.exp(-D2**2 / (2 * ancho**2))
+                H *= H1 * H2 # Multiplicamos los filtros xy y obtenemos el filtro completo
+    
+            else:
+                raise ValueError("Tipo debe ser 'ideal' o 'gaussiano'")
 
     return H
 
 
 # multiplicación del espectro complejo por la función de transferencia:
+def aplicar_filtro(espectro, filtro):
+    return espectro * filtro
 
 # transformada inversa: 
+def reconstruir(espc_filtrado):
+    return np.abs(inversa(espc_filtrado))
 
 # y recorte al tamaño original:
+def recortar(img, pad):
+    return 

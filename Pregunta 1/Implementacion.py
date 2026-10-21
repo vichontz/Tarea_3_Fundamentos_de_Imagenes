@@ -91,74 +91,77 @@ def filtrar_notch(img, notches, ancho, tipo='ideal', pad=0, modo='constant'):
 
 def decibeles(img):
     return np.log1p(np.abs(img))
+
+
 #Test
-img = data.camera()
-notches = [(100, 0),(200, 0), (300, 0), (400, 0), (500,0)]
+if __name__ == "__main__":
+    img = data.camera()
+    notches = [(100, 0),(200, 0), (300, 0), (400, 0), (500,0)]
 
-# Parametros
-ancho = 50
-N, M = img.shape
-pad = 2 * N
+    # Parametros
+    ancho = 50
+    N, M = img.shape
+    pad = 2 * N
 
-# Filtrado
-img_filtrada, img_recuperada, espc_filtrado, filtro, espectro, img_ext = filtrar_notch(
-    img,
-    notches,
-    ancho,
-    tipo='ideal',
-    pad=pad,
-    modo='reflect'
-)
+    # Filtrado
+    img_filtrada, img_recuperada, espc_filtrado, filtro, espectro, img_ext = filtrar_notch(
+        img,
+        notches,
+        ancho,
+        tipo='gaussiano',
+        pad=pad,
+        modo='reflect'
+    )
 
-# Mostrar resultados
+    # Mostrar resultados
 
-fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+    fig, axes = plt.subplots(1, 3, figsize=(15, 5))
 
-axes[0].imshow(img, cmap='gray')
-axes[0].set_title('Imagen original')
+    axes[0].imshow(img, cmap='gray')
+    axes[0].set_title('Imagen original')
 
-axes[1].imshow(img_ext, cmap='gray')
-axes[1].set_title('Imagen expandida')
+    axes[1].imshow(img_ext, cmap='gray')
+    axes[1].set_title('Imagen expandida')
 
-axes[2].imshow(decibeles(espectro), cmap='gray')
-axes[2].set_title('Espectro original')
+    axes[2].imshow(decibeles(espectro), cmap='gray')
+    axes[2].set_title('Espectro original')
 
-for ax in axes:
-    ax.axis('off')
+    for ax in axes:
+        ax.axis('off')
 
-plt.tight_layout()
-plt.show()
+    plt.tight_layout()
+    plt.show()
 
-fig2, axes2 = plt.subplots(1, 3, figsize=(15, 5))
+    fig2, axes2 = plt.subplots(1, 3, figsize=(15, 5))
 
-axes2[0].imshow(decibeles(espectro), cmap='gray')
-axes2[0].set_title('Espectro original')
+    axes2[0].imshow(decibeles(espectro), cmap='gray')
+    axes2[0].set_title('Espectro original')
 
-axes2[1].imshow(decibeles(filtro), cmap='gray')
-axes2[1].set_title('Filtro notch')
+    axes2[1].imshow(decibeles(filtro), cmap='gray')
+    axes2[1].set_title('Filtro notch')
 
-axes2[2].imshow(decibeles(espc_filtrado), cmap='gray')
-axes2[2].set_title('Espectro filtrado')
+    axes2[2].imshow(decibeles(espc_filtrado), cmap='gray')
+    axes2[2].set_title('Espectro filtrado')
 
-for ax in axes2:
-    ax.axis('off')
+    for ax in axes2:
+        ax.axis('off')
 
-plt.tight_layout()
-plt.show()
+    plt.tight_layout()
+    plt.show()
 
-fig3, axes3 = plt.subplots(1, 3, figsize=(15, 5))
+    fig3, axes3 = plt.subplots(1, 3, figsize=(15, 5))
 
-axes3[0].imshow(img, cmap='gray')
-axes3[0].set_title('Imagen original')
+    axes3[0].imshow(img, cmap='gray')
+    axes3[0].set_title('Imagen original')
 
-axes3[1].imshow(img_recuperada, cmap='gray')
-axes3[1].set_title('Imagen recuperada')
+    axes3[1].imshow(img_recuperada, cmap='gray')
+    axes3[1].set_title('Imagen recuperada')
 
-axes3[2].imshow(img_filtrada, cmap='gray')
-axes3[2].set_title('Imagen filtrada')
+    axes3[2].imshow(img_filtrada, cmap='gray')
+    axes3[2].set_title('Imagen filtrada')
 
-for ax in axes3:
-    ax.axis('off')
+    for ax in axes3:
+        ax.axis('off')
 
-plt.tight_layout()
-plt.show()
+    plt.tight_layout()
+    plt.show()

@@ -70,8 +70,11 @@ def aplicar_filtro(espectro, filtro):
 
 # transformada inversa: 
 def reconstruir(espc_filtrado):
-    return np.abs(inversa(espc_filtrado))
+    return np.abs(inversa(espc_filtrado).real)
 
 # y recorte al tamaño original:
 def recortar(img, pad):
-    return 
+    N, M = img.shape
+    img_filtrada = img_filtrada[pad:pad+N, pad:pad+M]
+    return img_filtrada
+

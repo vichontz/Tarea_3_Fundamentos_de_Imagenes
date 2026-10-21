@@ -69,10 +69,9 @@ def reconstruir(espc_filtrado):
     return np.abs(inversa(espc_filtrado).real)
 
 # y recorte al tamaño original:
-def recortar(img, pad):
-    N, M = img.shape
-    img_recortada = img[pad:pad+N, pad:pad+M]
-    return img_recortada
+def recortar(img, forma_original, pad):
+    N, M = forma_original
+    return img[pad:pad+N, pad:pad+M]
 
 #Función que encapsula todo el proceso:
 def filtrar_notch(img, notches, ancho, tipo='ideal', pad=0, modo='constant'):
@@ -82,7 +81,7 @@ def filtrar_notch(img, notches, ancho, tipo='ideal', pad=0, modo='constant'):
     filtro = filtro_notch(espectro.shape, notches, ancho, tipo)
     espc_filtrado = aplicar_filtro(espectro, filtro)
     img_recuperada = reconstruir(espc_filtrado)
-    img_final = recortar(img_recuperada, pad)
+    img_final = recortar(img_recuperada, img.shape, pad)
     return img_final, img_recuperada, espc_filtrado, filtro, espectro, img_ext
 
 def decibeles(img):
@@ -106,41 +105,6 @@ img_filtrada, img_recuperada, espc_filtrado, filtro, espectro, img_ext = filtrar
     modo='constant'
 )
 
-# Mostrar resultados
-
-fig, axes = plt.subplots(1, 3, figsize=(15, 5))
-
-axes[0].imshow(img, cmap='gray')
-axes[0].set_title('Imagen original')
-
-axes[1].imshow(img_ext, cmap='gray')
-axes[1].set_title('Imagen expandida')
-
-axes[2].imshow(decibeles(espectro), cmap='gray')
-axes[2].set_title('Espectro original')
-
-for ax in axes:
-    ax.axis('off')
-
-plt.tight_layout()
-plt.show()
-
-fig2, axes2 = plt.subplots(1, 3, figsize=(15, 5))
-
-axes2[0].imshow(decibeles(espectro), cmap='gray')
-axes2[0].set_title('Espectro original')
-
-axes2[1].imshow(decibeles(filtro), cmap='gray')
-axes2[1].set_title('Filtro notch')
-
-axes2[2].imshow(decibeles(espc_filtrado), cmap='gray')
-axes2[2].set_title('Espectro filtrado')
-
-for ax in axes2:
-    ax.axis('off')
-
-plt.tight_layout()
-plt.show()
 
 fig3, axes3 = plt.subplots(1, 3, figsize=(15, 5))
 

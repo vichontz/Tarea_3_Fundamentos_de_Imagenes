@@ -23,6 +23,8 @@ def transformada(img):
 def inversa(img):
     return ifft2(ifftshift(img))
 
+def decibeles(img):
+    return np.log1p(np.abs(img))
 
 # construcción del filtro notch:
 
@@ -89,14 +91,12 @@ def filtrar_notch(img, notches, ancho, tipo='ideal', pad=0, modo='constant'):
     img_final = recortar(img_recuperada, img.shape, pad)
     return img_final, img_recuperada, espc_filtrado, filtro, espectro, img_ext
 
-def decibeles(img):
-    return np.log1p(np.abs(img))
 
 
 #Test
 if __name__ == "__main__":
     img = data.camera()
-    notches = [(100, 0),(200, 0), (300, 0), (400, 0), (500,0)]
+    notches = [(100, 30),(200, 60), (300, 90), (400, 120), (500,0)]
 
     # Parametros
     ancho = 50

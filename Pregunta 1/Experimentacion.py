@@ -3,8 +3,10 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Circle
 from skimage import data
 from scipy.fft import fft2, ifft2, fftshift, ifftshift
-
+from pathlib import Path
 from Implementacion import padding, transformada, inversa, filtrar_notch, decibeles
+
+output_dir = Path(__file__).resolve().parent / "figures_p1"
 
 #1. Muestre el espectro de magnitud de la imagen, identifique las componentes que atribuye al ruido periódico 
 #y justifique las posiciones seleccionadas para los notches. 
@@ -14,7 +16,7 @@ img = data.camera()
 img_float = img.astype(np.float64)
 
 # Parametros
-ancho = 10
+ancho = 50
 N, M = img.shape
 pad = N
 
@@ -83,5 +85,48 @@ for u0, v0 in frecuencias:
         ))
         
 plt.tight_layout()
+
+output_dir.mkdir(exist_ok=True)
+fig.savefig(output_dir / "r_periodico_y_espectro", dpi=200, bbox_inches="tight")
+
 plt.show()
 
+# 2. Para ambas familias de filtro, explore sistemáticamente varios anchos de notch.
+# Analice conjuntamente ruido residual, pérdida de detalle y artefactos.
+
+diferencia = img_ruidosa - img_filtrada
+
+fig2, ax2 = plt.subplots(1, 3, figsize=(15, 5))
+
+ax2[0].imshow(decibeles(espectro), cmap='gray')
+ax2[0].set_title('Espectro original')
+
+ax2[1].imshow(decibeles(espc_filtrado), cmap='gray')
+ax2[1].set_title('Espectro filtrado')
+
+ax2[2].imshow(img_filtrada, cmap='gray')
+ax2[2].set_title('Imagen Filtrada')
+
+for ax in ax2:
+    ax.axis('off')
+
+plt.tight_layout()
+plt.show()
+
+fig3, ax3 = plt.subplots(1, 3, figsize=(15, 5))
+
+
+ax3[0].imshow(img_ruidosa, cmap='gray')
+ax3[0].set_title('Imagen con ruido')
+
+ax3[1].imshow(img_filtrada, cmap='gray')
+ax3[1].set_title('Imagen filtrada')
+
+ax3[1].imshow(diferencia, cmap='gray')
+ax3[1].set_title('diferencia')
+
+for ax in ax3:
+    ax.axis('off')
+
+plt.tight_layout()
+plt.show()

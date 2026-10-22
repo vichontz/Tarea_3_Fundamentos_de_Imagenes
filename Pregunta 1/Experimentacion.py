@@ -97,59 +97,70 @@ if accion == 1:
 elif accion == 2:
     # 2. Para ambas familias de filtro, explore sistemáticamente varios anchos de notch.
     # Analice conjuntamente ruido residual, pérdida de detalle y artefactos.
-
-
+    mode = input(' Ingrese el modo de padding \n' 'constant, edge, linear_ramp, maximum, mean, median, minimum, reflect, symmetric, wrap:\n')
+    familia = input('Ingrese el tipo de notch \n''ideal, gaussiano:')
+    
     # Parametros
-    anchos = [5, 10, 20, 40]
-    pad = N
+    anchos = [5, 10, 20, 40, 100]
+    pad = int(1 * N)
+
     notches = [
         (round(u0 * (M + 2 * pad) / M), round(v0 * (N + 2 * pad) / N))
         for u0, v0 in frecuencias
     ]
 
+    # en primer lugar, se calculan todos los casos y se guardan
+    resultados = []
     for ancho in anchos:
         img_filtrada, img_recuperada, espc_filtrado, filtro, espectro, img_ext = filtrar_notch(
             img_ruidosa,
             notches,
             ancho,
-            tipo='ideal',
+            tipo=familia,
             pad=pad,
-            modo='constant'
+            modo=mode
         )
-        
-        diferencia = img_ruidosa - img_filtrada
+        diferencia = (img_ruidosa - img_filtrada)
+        resultados.append((ancho, img_filtrada, espc_filtrado, espectro, diferencia))
 
-        fig2, ax2 = plt.subplots(1, 3, figsize=(15, 5))
+    # límites comunes para todo el barrido
+    A = max(np.abs(r[4]).max() for r in resultados)            # diferencia: [-A, A]
+    esp_ref = decibeles(resultados[0][3])                       # espectro original (igual en todos)
+    esp_ref = esp_ref[np.isfinite(esp_ref)]
+    vmin_esp, vmax_esp = esp_ref.min(), esp_ref.max()           # espectros: mismo rango antes/después
 
-        ax2[0].imshow(decibeles(espectro), cmap='gray')
+    # graficos
+    for ancho, img_filtrada, espc_filtrado, espectro, diferencia in resultados:
+
+        fig2, ax2 = plt.subplots(1, 2, figsize=(15, 5))
+
+        ax2[0].imshow(decibeles(espectro), cmap='gray', vmin=vmin_esp, vmax=vmax_esp)       
         ax2[0].set_title('Espectro original')
 
-        ax2[1].imshow(decibeles(espc_filtrado), cmap='gray')
-        ax2[1].set_title('Espectro filtrado')
-
-        ax2[2].imshow(img_filtrada, cmap='gray')
-        ax2[2].set_title('Imagen Filtrada')
+        ax2[1].imshow(decibeles(espc_filtrado), cmap='gray', vmin=vmin_esp, vmax=vmax_esp)  
+        ax2[1].set_title(f'Espectro filtrado (ideal, ancho={ancho})')                            
 
         for ax in ax2:
             ax.axis('off')
 
         plt.tight_layout()
+        fig2.savefig(output_dir / f"espc_ancho {ancho}", dpi=200, bbox_inches="tight")
         plt.show()
 
         fig3, ax3 = plt.subplots(1, 3, figsize=(15, 5))
 
-
-        ax3[0].imshow(img_ruidosa, cmap='gray')
+        ax3[0].imshow(img_ruidosa, cmap='gray', vmin=0, vmax=255)                           
         ax3[0].set_title('Imagen con ruido')
 
-        ax3[1].imshow(img_filtrada, cmap='gray')
+        ax3[1].imshow(img_filtrada, cmap='gray', vmin=0, vmax=255)                          
         ax3[1].set_title('Imagen filtrada')
 
-        ax3[2].imshow(diferencia, cmap='gray')
-        ax3[2].set_title('diferencia')
+        im = ax3[2].imshow(diferencia, cmap='gray', vmin=-A, vmax=A)                        
+        ax3[2].set_title(f'Diferencia (escala común {A:.1f})')                                                                     
 
         for ax in ax3:
             ax.axis('off')
 
         plt.tight_layout()
+        fig3.savefig(output_dir / f"dif_ancho{ancho}", dpi=200, bbox_inches="tight")
         plt.show()

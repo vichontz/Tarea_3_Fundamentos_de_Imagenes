@@ -5,7 +5,7 @@ from skimage import data
 from scipy.fft import fft2, ifft2, fftshift, ifftshift
 from pathlib import Path
 from Implementacion import padding, transformada, inversa, filtrar_notch, decibeles
-
+import imageio.v3 as iio
 output_dir = Path(__file__).resolve().parent / "figures_p1"
 
 
@@ -14,10 +14,11 @@ output_dir = Path(__file__).resolve().parent / "figures_p1"
 img = data.camera()
 img_float = img.astype(np.float64)
 
+
 #   ------Definiciones iniciales------      #
 ancho = 50
 N, M = img.shape
-pad = N
+pad = 3*N
 
 # Ruido periodico
 y, x = np.mgrid[0:N, 0:M]
@@ -36,16 +37,18 @@ if accion == 1:
     #1. Muestre el espectro de magnitud de la imagen, identifique las componentes que atribuye al ruido periódico 
     #y justifique las posiciones seleccionadas para los notches. 
 
-   
 
     # El padding cambia la cantidad de bins por ciclo en el espectro.
     escala_x = (M + 2 * pad) / M
     escala_y = (N + 2 * pad) / N
+
     notches = [
         (round(u0 * escala_x), round(v0 * escala_y))
         for u0, v0 in frecuencias
     ]
 
+    
+    
     # Filtrado
     img_filtrada, img_recuperada, espc_filtrado, filtro, espectro, img_ext = filtrar_notch(
         img_ruidosa,
@@ -89,7 +92,7 @@ if accion == 1:
     plt.tight_layout()
 
     output_dir.mkdir(exist_ok=True)
-    fig.savefig(output_dir / "r_periodico_y_espectro", dpi=200, bbox_inches="tight")
+    #fig.savefig(output_dir / "r_periodico_y_espectro", dpi=200, bbox_inches="tight")
 
     plt.show()
 
@@ -144,8 +147,9 @@ elif accion == 2:
             ax.axis('off')
 
         plt.tight_layout()
-        fig2.savefig(output_dir / f"espc_ancho {ancho}", dpi=200, bbox_inches="tight")
-        plt.show()
+        #fig2.savefig(output_dir / f"gaus_espc_ancho {ancho}", dpi=200, bbox_inches="tight")
+        
+        #plt.show()             # [ descomentar para ver ]
 
         fig3, ax3 = plt.subplots(1, 3, figsize=(15, 5))
 
@@ -155,12 +159,16 @@ elif accion == 2:
         ax3[1].imshow(img_filtrada, cmap='gray', vmin=0, vmax=255)                          
         ax3[1].set_title('Imagen filtrada')
 
-        im = ax3[2].imshow(diferencia, cmap='gray', vmin=-A, vmax=A)                        
-        ax3[2].set_title(f'Diferencia (escala común {A:.1f})')                                                                     
+        im = ax3[2].imshow(diferencia, cmap='gray', vmin=-192.4, vmax=192.4)                        
+        ax3[2].set_title(f'Diferencia (escala común {192.4:.1f})')                                                                     
 
         for ax in ax3:
             ax.axis('off')
 
         plt.tight_layout()
-        fig3.savefig(output_dir / f"dif_ancho{ancho}", dpi=200, bbox_inches="tight")
-        plt.show()
+        #fig3.savefig(output_dir / f"gaus_dif_ancho{ancho}", dpi=200, bbox_inches="tight")
+
+        #plt.show()             # [ descomentar para ver ]
+
+    
+

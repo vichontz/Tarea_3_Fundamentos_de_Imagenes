@@ -99,7 +99,7 @@ elif accion == 2:
     # 2. Para ambas familias de filtro, explore sistemáticamente varios anchos de notch.
     # Analice conjuntamente ruido residual, pérdida de detalle y artefactos.
     mode = 'constant'
-    familia = 'ideal' #input('Ingrese el tipo de notch \n''ideal, gaussiano:')
+    familia = input('Ingrese el tipo de notch \n''ideal, gaussiano:')
     
     # Parametros
     anchos = [1,3,5,10,20,40]
@@ -144,7 +144,7 @@ elif accion == 2:
             ax.axis('off')
 
         plt.tight_layout()
-        fig2.savefig(output_dir / f"prop_gaus_espc_ancho {ancho}", dpi=200, bbox_inches="tight")
+        fig2.savefig(output_dir / f"prop_{familia}_espc_{ancho}", dpi=200, bbox_inches="tight")
         plt.show()             # [ descomentar para ver ]
 
         fig3, ax3 = plt.subplots(1, 3, figsize=(15, 5))
@@ -162,7 +162,7 @@ elif accion == 2:
             ax.axis('off')
 
         plt.tight_layout()
-        fig3.savefig(output_dir / f"prop_gaus_dif_ancho{ancho}", dpi=200, bbox_inches="tight")
+        fig3.savefig(output_dir / f"prop_{familia}_dif_{ancho}", dpi=200, bbox_inches="tight")
         plt.show()             # [ descomentar para ver ]
 
     

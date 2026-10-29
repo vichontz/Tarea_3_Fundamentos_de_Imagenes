@@ -1,5 +1,5 @@
 
-#@title 0.1 Librerías e imágenes de prueba
+#todo esto fue obtenido de la capsula de deconvoluciones
 
 import numpy as np
 import matplotlib.pyplot as plt

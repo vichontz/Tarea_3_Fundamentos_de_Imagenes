@@ -46,3 +46,23 @@ if accion == 1:
             errores.append(rmse(x, x_hat))
         errores = np.array(errores)
 
+        # Mejor K va a ser aquel que minimice el error para cada sigma
+
+        idx = np.argmin(errores)
+        K_opt = Ks[idx]
+        rmse_opt = errores[idx]
+
+        # Reconstrimos
+        x_opt = restaurar(y, H, K_opt)
+
+        resultados[sigma] = {
+            'y': y,
+            'K_opt': K_opt,
+            'RMSE_opt': rmse_opt,
+            'x_opt': x_opt,
+            'errores': errores}
+
+        print(f"\nSigma = {sigma}")
+        print(f"RMSE degradada = {rmse(x, y):.6f}")
+        print(f"K optimo = {K_opt:.6g}")
+        print(f"RMSE minimo = {rmse_opt:.6f}")

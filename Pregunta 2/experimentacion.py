@@ -2,12 +2,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.fft import fft2, ifft2
 import imageio.v3 as iio
-
+from pathlib import Path
 from Implementacion_A import cargar_y_normalizar, construir_H, degradar, wiener, restaurar, rmse, curva_rmse 
 from Implementacion_B import aplicar_H, aplicar_Ht, calcular_costo_tikhonov, tikhonov_gradiente
 
 
 # Parametros
+output_dir = Path(__file__).resolve().parent / "figures_p2"
 SIGMAS = [0.001, 0.01, 0.03, 0.07]
 SEMILLA = 42
 # Cargar imagen y PSF
@@ -30,7 +31,7 @@ if accion == 1:
 #correspondientes.
 
 
-    Ks = np.logspace(-6, 0.5, 150) 
+    Ks = np.logspace(-3.5, 2.5, 150) 
     resultados = {}
     plt.figure(figsize=(8, 5))
 
@@ -76,10 +77,11 @@ if accion == 1:
     plt.grid(True)
     plt.legend()
     plt.tight_layout()
-    plt.show()
+    #plt.savefig(output_dir / "RMSEvsK", dpi=200, bbox_inches="tight")
+    #plt.show()
 
 
-    fig, ax = plt.subplots(len(SIGMAS), 3)
+    fig, ax = plt.subplots(len(SIGMAS), 3, figsize=(15, 15))
 
     for i, sigma in enumerate(SIGMAS):
 
@@ -98,5 +100,21 @@ if accion == 1:
 
     plt.suptitle("Comparacion de reconstrucciones")
     plt.tight_layout()
-    plt.show()
+    #fig.savefig(output_dir / "comp_reconst", dpi=200, bbox_inches="tight")
+    #plt.show()
 
+    y_inicio, y_fin = 47, 110
+    x_inicio, x_fin = 17, 90
+    fig, ax = plt.subplots(2, 2, figsize=(10, 8))
+
+    for eje, sigma in zip(ax.flat, SIGMAS):
+        r = resultados[sigma]
+        recorte = r['x_opt'][y_inicio:y_fin, x_inicio:x_fin]
+        eje.imshow(recorte, cmap='gray', vmin=0, vmax=1)
+        eje.set_title(f"Reconstruida, sigma={sigma}")
+        eje.axis('off')
+
+    plt.suptitle(f"Recorte ampliado: filas {y_inicio}:{y_fin}, columnas {x_inicio}:{x_fin}")
+    plt.tight_layout()
+    fig.savefig(output_dir / "ring_rec", dpi=200, bbox_inches="tight")
+    plt.show()

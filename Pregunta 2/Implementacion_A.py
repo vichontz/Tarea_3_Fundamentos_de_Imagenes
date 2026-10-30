@@ -12,7 +12,7 @@ SEMILLA = 42
 
 
 # El enunciado dice que estan normalizadas pero porsiacaso las cargamos y re-normalizamos.
-def cargar_y_normalizar(ruta_img, ruta_psf):
+def cargar_y_normalizar(ruta_img=RUTA_X, ruta_psf=RUTA_H):
    
     # Cargar imagen
     x = iio.imread(ruta_img)

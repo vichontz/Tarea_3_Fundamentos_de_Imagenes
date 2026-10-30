@@ -5,7 +5,7 @@ from scipy.fft import fft2, ifft2
 import imageio.v3 as iio
 
 #Reutilizamos estas
-from Implementacion_A import cargar_y_normalizar, construir_H, degradar, RUTA_H, RUTA_X
+from Implementacion_A import cargar_y_normalizar, construir_H, degradar, rmse, RUTA_H, RUTA_X
 
 
 # H Y H^T
@@ -22,8 +22,6 @@ def calcular_costo_tikhonov(x, y, H_freq, lam):
     return (0.5 * np.sum(residuo**2) + 0.5 * lam * np.sum(x**2))
 
 
-def calcular_rmse(x, x_ideal):
-    return float(np.sqrt(np.mean((x - x_ideal)**2)))
 
 
 # Decenso del gradiente
@@ -51,7 +49,7 @@ def tikhonov_gradiente(y, H_freq, lam, tau=None, max_iter=500, tol=1e-5, x_ideal
     historial_rmse = []
 
     if x_ideal is not None:
-        historial_rmse.append(calcular_rmse(x_k, x_ideal))
+        historial_rmse.append(rmse(x_k, x_ideal))
 
     convergio = False
 
@@ -69,7 +67,7 @@ def tikhonov_gradiente(y, H_freq, lam, tau=None, max_iter=500, tol=1e-5, x_ideal
         historial_costo.append(costo)
 
         if x_ideal is not None: 
-            historial_rmse.append(calcular_rmse(x_next, x_ideal))
+            historial_rmse.append(rmse(x_next, x_ideal))
 
         # Criterio de detención
         cambio_relativo = ( np.linalg.norm(x_next - x_k) / (np.linalg.norm(x_k) + 1e-12))
@@ -117,8 +115,8 @@ if __name__ == "__main__":
         x_ideal=x
     )
 
-    print(f"RMSE degradada: {calcular_rmse(y, x):.6f}")
-    print(f"RMSE restaurada: {calcular_rmse(x_tikh, x):.6f}")
+    print(f"RMSE degradada: {rmse(y, x):.6f}")
+    print(f"RMSE restaurada: {rmse(x_tikh, x):.6f}")
     print(f"Costo final: {costos[-1]:.6f}")
 
     # Imagenes

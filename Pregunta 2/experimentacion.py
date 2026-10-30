@@ -78,3 +78,25 @@ if accion == 1:
     plt.tight_layout()
     plt.show()
 
+
+    fig, ax = plt.subplots(len(SIGMAS), 3)
+
+    for i, sigma in enumerate(SIGMAS):
+
+        r = resultados[sigma]
+
+        imagenes = [
+            (x, "Original"),
+            (r['y'], f"Degradada, sigma={sigma}"),
+            (r['x_opt'], f"Wiener, K={r['K_opt']:.2e}\nRMSE={r['RMSE_opt']:.4f}")
+        ]
+
+        for j, (img, titulo) in enumerate(imagenes):
+            ax[i, j].imshow(img, cmap='gray', vmin=0, vmax=1)
+            ax[i, j].set_title(titulo)
+            ax[i, j].axis('off')
+
+    plt.suptitle("Comparacion de reconstrucciones")
+    plt.tight_layout()
+    plt.show()
+

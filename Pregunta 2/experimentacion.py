@@ -116,5 +116,74 @@ if accion == 1:
 
     plt.suptitle(f"Recorte ampliado: filas {y_inicio}:{y_fin}, columnas {x_inicio}:{x_fin}")
     plt.tight_layout()
-    fig.savefig(output_dir / "ring_rec", dpi=200, bbox_inches="tight")
+    #fig.savefig(output_dir / "ring_rec", dpi=200, bbox_inches="tight")
+    plt.show()
+
+
+
+elif accion == 2:
+
+    x, h = cargar_y_normalizar()
+
+    #  PSF perturbada = desenfoque extra (suavizado gauss de sigma_p px) es decir, PSF más ancha
+    sigma_p = 1.5
+    m = int(np.ceil(4 * sigma_p))
+    t = np.arange(-m, m + 1)
+    g = np.exp(-t**2 / (2 * sigma_p**2))
+    g /= g.sum()
+    h_pert = np.array([np.convolve(fila, g, mode='same') for fila in h])
+    h_pert = np.array([np.convolve(columna, g, mode='same') for columna in h_pert.T]).T
+    h_pert /= h_pert.sum()
+
+    # Construimos OTF's
+    H = construir_H(h, x.shape)
+    H_pert = construir_H(h_pert, x.shape)
+
+
+    sigma_ruido = 0.01
+    y = degradar(x, H, sigma=sigma_ruido, seed=42)
+
+    # Buscamos K (solo para asegurar, aun q podriamos tomar los valores del exp 1)
+    Ks = np.logspace(-6, 0, 150)
+    errores = [rmse(x, restaurar(y, H, K)) for K in Ks]
+    K_opt = Ks[np.argmin(errores)]
+
+    # 
+    x_correcta = restaurar(y, H, K_opt)
+    x_incorrecta = restaurar(y, H_pert, K_opt)
+    x_dif = np.abs(x_incorrecta - x_correcta)                       # efecto aislado de la perturbación
+
+    # Recorte ampliado
+    crop = (slice(25, 105), slice(95, 175))
+
+    rm_c, rm_i = rmse(x, x_correcta), rmse(x, x_incorrecta)
+    rc_c, rc_i = rmse(x[crop], x_correcta[crop]), rmse(x[crop], x_incorrecta[crop])
+    print(f"sigma_ruido = {sigma_ruido},  sigma_p = {sigma_p},   K utilizado: {K_opt:.3e}")
+    print(f"RMSE total   : correcta {rm_c:.5f},  perturbada {rm_i:.5f},  aumento {100*(rm_i/rm_c-1):.1f} %")
+    print(f"RMSE recorte : correcta {rc_c:.5f},  perturbada {rc_i:.5f},  aumento {100*(rc_i/rc_c-1):.1f} %")
+
+    # Graficos
+    fig, ax = plt.subplots(1, 3, figsize=(12, 4.5))
+    imagenes = [x_correcta, x_incorrecta, x_dif]
+    titulos = [f'PSF correcta\nRMSE={rm_c:.4f}',
+               f'PSF perturbada (sigma_p={sigma_p})\nRMSE={rm_i:.4f}',
+               '|perturbada - correcta|']
+    for k, (a, img, titulo) in enumerate(zip(ax, imagenes, titulos)):
+        a.imshow(img, cmap='gray', vmin=0, vmax=(1 if k < 2 else 0.3))   # escala fija; la diferencia usa 0-0.3
+        a.set_title(titulo)
+        a.axis('off')
+    plt.suptitle(f'Wiener con K={K_opt:.2e}', y=1.05)
+    plt.tight_layout()
+    #plt.savefig(output_dir / "alterada", dpi=200, bbox_inches="tight")
+    plt.show()
+
+    # 8. Comparación de un recorte ampliado
+    fig, ax = plt.subplots(1, 3, figsize=(12, 4.5))
+    for k, (a, img, titulo) in enumerate(zip(ax, imagenes, titulos)):
+        a.imshow(img[crop], cmap='gray', vmin=0, vmax=(1 if k < 2 else 0.3), interpolation='nearest')
+        a.set_title(titulo)
+        a.axis('off')
+    plt.suptitle(f'Recorte', y=1.05)
+    plt.tight_layout()
+    #fig.savefig(output_dir / "alterada_rec", dpi=200, bbox_inches="tight")
     plt.show()

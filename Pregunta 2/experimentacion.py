@@ -13,3 +13,36 @@ SEMILLA = 42
 # Cargar imagen y PSF
 x, h = cargar_y_normalizar()
 H = construir_H(h, x.shape)
+
+
+
+
+print("ingrese el numero del experimento que desea ver (1, 2, 3, etc)")
+accion = int(input())
+
+if accion == 1:
+
+#explore K en una escala suficientemente amplia, preferentemente logarítmica. 
+#Para al menos dos niveles de ruido.
+#grafique RMSE versus K.
+#determine el valor óptimo 
+#compare las reconstrucciones 
+#correspondientes.
+
+
+    Ks = np.logspace(-6, 0, 150) 
+    resultados = {}
+    plt.figure(figsize=(8, 5))
+
+
+    for sigma in SIGMAS:
+
+        # Generar observacion
+        y = degradar(x, H, sigma=sigma, seed=SEMILLA)
+
+        errores = []
+        for K in Ks:
+            x_hat = restaurar(y, H, K)
+            errores.append(rmse(x, x_hat))
+        errores = np.array(errores)
+

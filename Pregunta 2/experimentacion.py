@@ -8,7 +8,7 @@ from Implementacion_B import aplicar_H, aplicar_Ht, calcular_costo_tikhonov, tik
 
 
 # Parametros
-SIGMAS = [0.01, 0.03]
+SIGMAS = [0.001, 0.01, 0.03, 0.07]
 SEMILLA = 42
 # Cargar imagen y PSF
 x, h = cargar_y_normalizar()
@@ -30,7 +30,7 @@ if accion == 1:
 #correspondientes.
 
 
-    Ks = np.logspace(-6, 0, 150) 
+    Ks = np.logspace(-6, 0.5, 150) 
     resultados = {}
     plt.figure(figsize=(8, 5))
 
@@ -66,3 +66,15 @@ if accion == 1:
         print(f"RMSE degradada = {rmse(x, y):.6f}")
         print(f"K optimo = {K_opt:.6g}")
         print(f"RMSE minimo = {rmse_opt:.6f}")
+
+        plt.plot(Ks, errores, label=f'sigma = {sigma}')
+
+    plt.xscale('log')
+    plt.xlabel("K")
+    plt.ylabel("RMSE")
+    plt.title("Wiener: RMSE según K")
+    plt.grid(True)
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
+
